@@ -505,9 +505,9 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
 });
 
 var AdminForm = exports.AdminForm = MongooseForm.extend({
-    init: function(request,options)
+    init: function(request,options,model)
     {
-        this._super(request,options);
+        this._super(request,options,model);
         this.static['js'].push('/node-forms/js/jquery-ui-1.8.18.custom.min.js');
         this.static['css'].push('/node-forms/css/ui-lightness/jquery-ui-1.8.18.custom.css');
         this.static['css'].push('/node-forms/css/forms.css');
