@@ -1,16 +1,20 @@
 {
-  "name": "mongoose-resource",
-  "description": "Restful API layer with Mongoose based resources. Inspired by python Tastypie",
-  "version": "0.0.51",
+  "name": "j-forms",
+  "description": "jewish forms creation from fields or from mongoose models",
+  "version": "0.0.22",
   "author": "Ishai Jaffe <ishai@empeeric.com>",
   "dependencies": {
-    "express":"",
-	"express-resource":"",
+    "sji":"",
+    "underscore":"",
 	"mongoose":"",
-	"ejs":""
+    "async":""
+  },
+  "devDependencies":{
+    "express":"",
+    "ejs":""
   },
   "main": "index",
-  "keywords": ["api", "mongoose", "rest", "restful"],
-  "repository": "git@github.com:IshaiJaffe/mongoose-resource.git",
-  "engines": { "node": ">= 0.4.1 < 0.7.0" }
+  "keywords": ["forms", "mongoose", "django"],
+  "repository": "git@github.com:IshaiJaffe/nodejs-forms.git",
+  "engines": { "node": ">= 0.4.1" }
 }
