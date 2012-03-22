@@ -1,5 +1,5 @@
 {
-  "name": "forms",
+  "name": "mongoose-forms",
   "description": "forms creation from fields or from mongoose models",
   "version": "0.0.1",
   "author": "Ishai Jaffe <ishai@empeeric.com>",

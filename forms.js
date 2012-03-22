@@ -67,6 +67,8 @@ var BaseForm = exports.BaseForm = Class.extend({
         options = options || {};
         this.data = options.data || request.body || {};
         this.files = options.files || request.files || {};
+        this.exclude = options.exclude || [];
+        this.instance = options.instance;
         this.request = request;
         this._fields_ready = false;
         this.fieldsets = null;
@@ -82,6 +84,42 @@ var BaseForm = exports.BaseForm = Class.extend({
  //       this.static['js'].push('/node-forms/js/maps.js');
 //        this.static['css'].push('/node-forms/css/ui-lightness/jquery-ui-1.8.18.custom.css');
 //        this.static['css'].push('/node-forms/css/forms.css');
+        this.handle_empty = options.empty;
+        this.handle_success = options.success;
+        this.handle_error = options.error;
+        var self = this;
+        if(request.method.toUpperCase() == 'GET' && this.handle_empty)
+        {
+            self.render_ready(function(err)
+            {
+                self.handle_empty(err);
+            });
+        }
+        if(request.method.toUpperCase() == 'POST' && this.handle_success && this.handle_error)
+        {
+            function on_error(error)
+            {
+                self.render_ready(function(err)
+                {
+                    self.handle_error(err || error);
+                });
+            }
+            self.is_valid(function(err,valid)
+            {
+                if(err || !valid)
+                    on_error(err);
+                else
+                {
+                    self.save(function(err,result)
+                    {
+                        if(err)
+                            on_error(err);
+                        else
+                            self.handle_success(null,result);
+                    });
+                }
+            });
+        }
     },
     get_static: function()
     {
@@ -113,13 +151,21 @@ var BaseForm = exports.BaseForm = Class.extend({
     },
     get_fields : function()
     {
-        for(var attr in this)
+        var self = this;
+        for(var attr in self)
         {
-            if(this[attr] instanceof fields.BaseField)
+            if(self[attr] instanceof fields.BaseField)
             {
-                this.fields[attr] = this[attr];
+                self.fields[attr] = self[attr];
             }
         }
+        var all_fields = self.fields;
+        self.fields = {};
+        _.each(all_fields,function(field,name)
+        {
+            if(_.indexOf(self.exclude,name) == -1)
+                self.fields[name] = field;
+        });
     },
     get_value : function(field_name)
     {
@@ -227,7 +273,10 @@ var BaseForm = exports.BaseForm = Class.extend({
                 if(typeof(field_name) == 'object')
                     render_fieldset(field_name);
                 else
-                    self.fields[field_name].render_with_label(res);
+                {
+                    if(field_name in self.fields)
+                        self.fields[field_name].render_with_label(res);
+                }
             }
         };
         function render_fieldset(fieldset)
@@ -253,13 +302,17 @@ var BaseForm = exports.BaseForm = Class.extend({
             render_fields(Object.keys(self.fields));
         res.write('<input type="hidden" id="document_id" name="_id" value="' + (self.instance.isNew ? '' : self.instance.id) + '" />');
     },
-    render_str : function()
+    to_html : function()
     {
         var self = this;
         return common.writer_to_string(function(res)
         {
             self.render(res);
         },36000);
+    },
+    render_str:function()
+    {
+        return this.to_html();
     },
     render_error : function(res,field_name)
     {
@@ -274,9 +327,9 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
     init: function(request,options,model)
     {
         options = options || {};
-        this._super(request,options);
         this.model = model;
-        this.instance = options.instance || new this.model();
+        options.instance = options.instance || new this.model();
+        this._super(request,options);
     },
     get_fields : function()
     {
@@ -322,6 +375,8 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
     },
     mongoose_field_to_form_field: function(mongoose_field,name,tree)
     {
+        if(_.indexOf(this.exclude,name) > -1)
+            return null;
         if(mongoose_field.options.auto || ('editable' in mongoose_field.options || mongoose_field.options.editable))
             return new fields.ReadonlyField({});
         var is_required = mongoose_field.options.required ? true : false;
