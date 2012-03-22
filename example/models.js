@@ -5,6 +5,7 @@ module.exports = {
     Book : mongoose.model('Book',new mongoose.Schema({
         name : String,
         pages : { type:Number, min:14, max:20000},
+        published_at : Date,
         author : {type:objectId,ref:'Author'},
         janner : {type:String,enum:['Novel','Science fiction']}
     })),
