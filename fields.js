@@ -449,6 +449,8 @@ var ListField = exports.ListField = BaseField.extend({
     deep_read: function(object,name)
     {
         var parent = object;
+        if(!parent)
+            return null;
         var parts = name.split('.');
         _.each(_.initial(parts),function(part)
         {
@@ -456,8 +458,6 @@ var ListField = exports.ListField = BaseField.extend({
             if(!parent)
                 return null;
         });
-        if(!parent)
-            return null;
         return parent[_.last(parts)];
     },
     render_list_item : function(res,fields,fieldsets,prefix,value)
