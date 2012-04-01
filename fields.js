@@ -38,7 +38,7 @@ var BaseField = exports.BaseField = Class.extend({
         var schema = {};
         if(this.required)
             schema['required'] = true;
-        if(this['default'])
+        if(this['default'] != null)
             schema['default'] = this['default'];
         return schema;
     },
@@ -254,6 +254,11 @@ var NumberField = exports.NumberField = StringField.extend({
     {
         options = options || {};
         options.widget = options.widget || widgets.NumberWidget;
+        options.widget_options = options.widget_options || {};
+        options.widget_options.min = options.widget_options.min != null ? options.widget_options.min : options.min;
+        options.widget_options.max = options.widget_options.max != null ? options.widget_options.max : options.max;
+        options.widget_options.step = options.widget_options.step != null ? options.widget_options.step : options.step;
+
         this._super(options);
     },
     to_schema : function()
@@ -374,6 +379,10 @@ var ListField = exports.ListField = BaseField.extend({
         {
             for(var i=0; i<self.value.length; i++)
             {
+                var new_dict = {};
+                for(var key in self.value[i])
+                    self.deep_write(new_dict,key,self.value[i][key]);
+                self.value[i] = new_dict;
                 if('__self__' in self.value[i])
                     self.value[i] = self.value[i].__self__;
             }
@@ -425,8 +434,35 @@ var ListField = exports.ListField = BaseField.extend({
         self.widget.render(res,render_template,render_item);
         return self;
     },
+    deep_write: function(object,name,value)
+    {
+        var parent = object;
+        var parts = name.split('.');
+        _.each(_.initial(parts),function(part)
+        {
+            var child = parent[part] || {};
+            parent[part] = child;
+            parent = child;
+        });
+        parent[_.last(parts)] = value;
+    },
+    deep_read: function(object,name)
+    {
+        var parent = object;
+        var parts = name.split('.');
+        _.each(_.initial(parts),function(part)
+        {
+            parent = parent[part];
+            if(!parent)
+                return null;
+        });
+        if(!parent)
+            return null;
+        return parent[_.last(parts)];
+    },
     render_list_item : function(res,fields,fieldsets,prefix,value)
     {
+        var self = this;
         var options = {};
         function render_fields(fields)
         {
@@ -444,7 +480,7 @@ var ListField = exports.ListField = BaseField.extend({
             fields[field_name].name = prefix + field_name;
             if(field_name != '__self__')
             {
-                fields[field_name].value = value ? value[field_name] : null;
+                fields[field_name].value = value ? self.deep_read(value,field_name) : null;
                 fields[field_name].render_with_label(res);
             }
             else
@@ -514,11 +550,8 @@ var FileField = exports.FileField = BaseField.extend({
             if(req.files[self.name] && req.files[self.name].name)
             {
                 // copy file from temp location
-                console.log('temp file is at:');
-                console.log(req.files[self.name].path);
                 var is = fs.createReadStream(req.files[self.name].path);
                 var filename = self.create_filename(req.files[self.name]);
-                console.log(self.directory + filename);
                 var os = fs.createWriteStream(self.directory + filename);
 
                 util.pump(is, os, function(err) {

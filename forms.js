@@ -22,7 +22,9 @@ exports.checkDependecies = function(model,id,callback)
     for(var modelName in Models)
     {
         var model_ref = Models[modelName];
-        if(!Models[modelName].schema)
+        if(!model_ref)
+            continue;
+        if(!model_ref.schema)
             continue;
         for(var fieldName in model_ref.schema.paths)
         {
@@ -300,7 +302,8 @@ var BaseForm = exports.BaseForm = Class.extend({
         }
         else
             render_fields(Object.keys(self.fields));
-        res.write('<input type="hidden" id="document_id" name="_id" value="' + (self.instance.isNew ? '' : self.instance.id) + '" />');
+        if(_.indexOf(self.exclude,'id') == -1)
+            res.write('<input type="hidden" id="document_id" name="_id" value="' + (self.instance.isNew ? '' : self.instance.id) + '" />');
     },
     to_html : function()
     {
@@ -380,8 +383,9 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         if(mongoose_field.options.auto || ('editable' in mongoose_field.options || mongoose_field.options.editable))
             return new fields.ReadonlyField({});
         var is_required = mongoose_field.options.required ? true : false;
-        var def = mongoose_field.options['default'] || null;
+        var def = mongoose_field.options['default'];
         var validators = [];
+        var options = {required:is_required,'default':def,validators:validators,label:name};
         if(mongoose_field.options.validate)
         {
             validators.push(function(value)
@@ -390,23 +394,41 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
                 return result ? true : mongoose_field.options.validate[1];
             });
         }
-        if(mongoose_field.options.min)
+        if(mongoose_field.options.min != null)
+        {
+            var min = mongoose_field.options.min;
             validators.push(function(value)
             {
-                if(value >= mongoose_field.options.min)
+                if(value >= min)
                     return true;
                 else
-                    return 'value must be equal or greater than ' + mongoose_field.options.min;
+                    return 'value must be equal or greater than ' + min;
             });
-        if(mongoose_field.options.max)
+            options.min = min;
+        }
+        if(mongoose_field.options.max != null)
+        {
+            var max = mongoose_field.options.max;
             validators.push(function(value)
             {
-                if(value <= mongoose_field.options.max)
+                if(value <= max)
                     return true;
                 else
-                    return 'value must be equal or lower than ' + mongoose_field.options.max;
+                    return 'value must be equal or lower than ' + max;
             });
-        var options = {required:is_required,'default':def,validators:validators,label:name};
+            options.max = max;
+        }
+        if(mongoose_field.options.step != null)
+        {
+            var step = mongoose_field.options.step;
+            validators.push(function(value){
+                if(Math.round(value/step) == value/step)
+                    return true;
+                else
+                    return 'value must be according to step ' + step;
+            });
+            options.step = step;
+        }
         if(Array.isArray(mongoose_field.options.type))
         {
             var path_parts = mongoose_field.path.split('.');
@@ -421,8 +443,6 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
             {
                 if(inner_schema && inner_schema.type && Array.isArray(inner_schema.type))
                     inner_schema = inner_schema.type[0];
-                if(!inner_schema)
-                    console.log(inner_schema);
             }
             var schema;
             if(inner_schema && (typeof(inner_schema) != 'object' || inner_schema.type))
@@ -471,6 +491,11 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         }
         if(mongoose_field.options.type == Boolean)
             return new fields.BooleanField(options);
+        if(mongoose_field.options.type.name == 'Integer')
+        {
+            options.step = options.step != null ? options.step : 1.0;
+            return new fields.NumberField(options);
+        }
         if(mongoose_field.options.type == Number)
             return new fields.NumberField(options);
         if(mongoose_field.options.type == Date)

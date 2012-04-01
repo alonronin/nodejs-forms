@@ -83,6 +83,13 @@ var DateWidget = exports.DateWidget = InputWidget.extend({
 var NumberWidget = exports.NumberWidget = InputWidget.extend({
 	init: function(options)
     {
+        options = options || {};
+        options.attrs = options.attrs || {};
+        if(options.min != null)
+            options.attrs.min = options.min;
+        if(options.max != null)
+            options.attrs.max = options.max;
+        options.attrs.step = options.attrs.step || options.step || 'any' ;
         this._super('number',options);
     }
 });
@@ -164,8 +171,6 @@ var RefWidget = exports.RefWidget = ChoicesWidget.extend({
             else
             {
                 self.choices = [];
-                if(objects.length)
-                    console.log(objects[0].name);
                 for(var i=0; i<objects.length; i++)
                     self.choices.push([objects[i].id,objects[i].name || objects[i].title || objects[i].toString()]);
                 return base(callback);
