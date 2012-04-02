@@ -40,5 +40,15 @@ exports.loadTypes = function(mongoose)
 
     mongoose.Types.GeoPoint = Object;
     mongoose.SchemaTypes.GeoPoint = GeoPoint;
+
+    var Text = function Text(path,options) {
+        Text.super_.call(this,path,options);
+    };
+    util.inherits(Text,mongoose.SchemaTypes.String);
+
+    exports.Text = Text;
+
+    mongoose.Types.Text = String;
+    mongoose.SchemaTypes.Text = Text;
 };
 

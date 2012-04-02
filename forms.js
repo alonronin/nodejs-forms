@@ -1,6 +1,7 @@
 var Class = require('sji')
     ,_ = require('underscore')
     ,fields = require('./fields')
+    ,widgets = require('./widgets')
     ,common = require('./common'),
     mongoose = require('mongoose');
     mongoose_types = require('./mongoose-types');
@@ -283,6 +284,8 @@ var BaseForm = exports.BaseForm = Class.extend({
         };
         function render_fieldset(fieldset)
         {
+            if(!fieldset || !fieldset.fields || !fieldset.fields.length)
+                return;
             if(fieldset['title'] && fieldset['title'] != '' && !options.hide_fieldsets)
                 res.write('<div class="nf_fieldset">');
             var title = fieldset['title'] || '';
@@ -352,6 +355,8 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
             var form_field = this.mongoose_field_to_form_field(field_paths[field],parts[parts.length-1],field_tree);
             if(form_field)
                 ref_fields[field] = form_field;
+            else
+                continue;
             var parent_fieldset = ref_fieldsets[0];
             for(var i=0; i<parts.length-1; i++)
             {
@@ -381,7 +386,7 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         if(_.indexOf(this.exclude,name) > -1)
             return null;
         if(mongoose_field.options.auto || ('editable' in mongoose_field.options || mongoose_field.options.editable))
-            return new fields.ReadonlyField({});
+            return null;//new fields.ReadonlyField({});
         var is_required = mongoose_field.options.required ? true : false;
         var def = mongoose_field.options['default'];
         var validators = [];
@@ -502,6 +507,11 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
             return new fields.NumberField(options);
         if(mongoose_field.options.type == Date)
             return new fields.DateField(options);
+        if(mongoose_field.options.type.name == 'Text')
+        {
+            options.widget = widgets.TextAreaWidget;
+            return new fields.StringField(options);
+        }
         if(mongoose_field.instance && mongoose_field.instance == 'String')
             return new fields.StringField(options);
         return new fields.StringField(options);

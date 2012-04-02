@@ -479,6 +479,8 @@ var ListField = exports.ListField = BaseField.extend({
         };
         function render_field(field_name)
         {
+            if(!fields[field_name])
+                return;
             fields[field_name].name = prefix + field_name;
             if(field_name != '__self__')
             {
@@ -518,6 +520,25 @@ var ListField = exports.ListField = BaseField.extend({
 
 var fs = require('fs');
 var util = require('util');
+var knox;
+try
+{
+    knox = require('knox');
+}
+catch(e)
+{
+}
+
+var client;
+if(knox)
+{
+  client  = knox.createClient({
+        key: 'AKIAJRFZHJQE2YWVS7EQ',
+        secret: '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',
+        bucket: 'sivans-bucket'
+    });
+}
+
 
 var FileField = exports.FileField = BaseField.extend({
     init: function(options)
@@ -542,27 +563,45 @@ var FileField = exports.FileField = BaseField.extend({
     clean_value : function(req,callback)
     {
         var self = this;
+        var base = self._super;
         self.value = self.value || {};
         function on_finish()
         {
-            self._super(req,callback);
+            base.call(self,req,callback);
         }
         function after_delete(err)
         {
             if(req.files[self.name] && req.files[self.name].name)
             {
                 // copy file from temp location
-                var is = fs.createReadStream(req.files[self.name].path);
-                var filename = self.create_filename(req.files[self.name]);
-                var os = fs.createWriteStream(self.directory + filename);
 
-                util.pump(is, os, function(err) {
-                    fs.unlink(req.files[self.name].path,function(err)
-                    {
-                        self.value = {path:filename,size:req.files[self.name].size};
+                if(knox)
+                {
+                    var stream = fs.createReadStream(req.files[self.name].path);
+                    var filename = self.create_filename(req.files[self.name]);
+
+                    client.putStream(stream, '/' + filename, function(err, res){
+                        fs.unlink(req.files[self.name].path);
+                        self.value = {path:res.socket._httpMessage.url,size:req.files[self.name].size};
+						console.log(res);
+						console.log(res.socket._httpMessage.url);
                         on_finish();
                     });
-                });
+                }
+                else
+                    on_finish();
+
+//                var is = fs.createReadStream(req.files[self.name].path);
+
+//                var os = fs.createWriteStream(self.directory + filename);
+
+//                util.pump(is, os, function(err) {
+//                    fs.unlink(req.files[self.name].path,function(err)
+//                    {
+//                        self.value = {path:filename,size:req.files[self.name].size};
+//                        on_finish();
+//                    });
+//                });
             }
             else
             {

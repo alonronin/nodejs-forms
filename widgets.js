@@ -63,10 +63,22 @@ var HiddenWidget = exports.HiddenWidget = InputWidget.extend({
 });
 
 var TextWidget = exports.TextWidget = InputWidget.extend({
-	init: function(options)
-    {
+    init: function(options){
         this._super('text',options);
     }
+});
+
+var TextAreaWidget = exports.TextAreaWidget = Widget.extend({
+    render : function(res)
+    {
+        res.write('<textarea ');
+        this.render_attributes(res);
+        res.write(' >');
+        res.write(this.value != null ? this.value :  '');
+        res.write('</textarea>');
+        return this;
+    }
+
 });
 
 var DateWidget = exports.DateWidget = InputWidget.extend({
