@@ -438,12 +438,12 @@ var ListField = exports.ListField = BaseField.extend({
     {
         var parent = object;
         var parts = name.split('.');
-        _.each(_.initial(parts),function(part)
+        for(var i=0; i<parts.length-1; i++)
         {
-            var child = parent[part] || {};
-            parent[part] = child;
+            var child = parent[parts[i]] || {};
+            parent[parts[i]] = child;
             parent = child;
-        });
+        }
         parent[_.last(parts)] = value;
     },
     deep_read: function(object,name)
@@ -452,12 +452,14 @@ var ListField = exports.ListField = BaseField.extend({
         if(!parent)
             return null;
         var parts = name.split('.');
-        _.each(_.initial(parts),function(part)
+        for(var i=0; i<parts.length-1; i++)
         {
-            parent = parent[part];
+            parent = parent[parts[i]];
             if(!parent)
                 return null;
-        });
+        }
+        if(!parent)
+            return null;
         return parent[_.last(parts)];
     },
     render_list_item : function(res,fields,fieldsets,prefix,value)
