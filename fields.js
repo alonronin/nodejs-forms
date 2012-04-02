@@ -530,14 +530,11 @@ catch(e)
 }
 
 var client;
-if(knox)
+exports.setAmazonCredentials = function(credentials)
 {
-  client  = knox.createClient({
-        key: 'AKIAJRFZHJQE2YWVS7EQ',
-        secret: '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',
-        bucket: 'sivans-bucket'
-    });
-}
+    if(knox)
+        client = knox.createClient(credentials);
+};
 
 
 var FileField = exports.FileField = BaseField.extend({
@@ -583,8 +580,7 @@ var FileField = exports.FileField = BaseField.extend({
                     client.putStream(stream, '/' + filename, function(err, res){
                         fs.unlink(req.files[self.name].path);
                         self.value = {path:res.socket._httpMessage.url,size:req.files[self.name].size};
-						console.log(res);
-						console.log(res.socket._httpMessage.url);
+						
                         on_finish();
                     });
                 }
