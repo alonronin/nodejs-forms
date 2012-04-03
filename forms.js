@@ -385,7 +385,7 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
     {
         if(_.indexOf(this.exclude,name) > -1)
             return null;
-        if(mongoose_field.options.auto || ('editable' in mongoose_field.options || mongoose_field.options.editable))
+        if(mongoose_field.options.auto || ('editable' in mongoose_field.options && !mongoose_field.options.editable))
             return null;//new fields.ReadonlyField({});
         var is_required = mongoose_field.options.required ? true : false;
         var def = mongoose_field.options['default'];
