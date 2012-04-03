@@ -12,7 +12,8 @@ $(document).ready(function(){
     {
         $('label[for="' + this.id  + '"]').addClass('optional_label');
     });
-    $('.nf_datepicker').datetimepicker();
+    if($().datetimepicker)
+        $('.nf_datepicker').datetimepicker();
 
     function init_listfield()
     {
