@@ -572,7 +572,7 @@ var FileField = exports.FileField = BaseField.extend({
             {
                 // copy file from temp location
 
-                if(knox)
+                if(knox&&client)
                 {
                     var stream = fs.createReadStream(req.files[self.name].path);
                     var filename = self.create_filename(req.files[self.name]);
