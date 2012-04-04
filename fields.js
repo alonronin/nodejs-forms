@@ -542,7 +542,7 @@ var FileField = exports.FileField = BaseField.extend({
     {
         options = options || {};
         options.widget = options.widget || widgets.FileWidget;
-        this.directory = options.upload_to || require('path').join(__dirname,'..','public','cdn');
+        this.directory = options.upload_to || require('path').join(__dirname,'..','..','public','cdn');
         this._super(options);
     },
     to_schema : function()
@@ -579,25 +579,31 @@ var FileField = exports.FileField = BaseField.extend({
 
                     client.putStream(stream, '/' + filename, function(err, res){
                         fs.unlink(req.files[self.name].path);
-                        self.value = {path:res.socket._httpMessage.url,size:req.files[self.name].size};
-						
+                        self.value = {
+                            path:res.socket._httpMessage.url,
+                            url:res.socket._httpMessage.url,
+                            size:req.files[self.name].size};
+						console.log(res);
+						console.log(res.socket._httpMessage.url);
                         on_finish();
                     });
                 }
                 else
-                    on_finish();
+                {
+                    var is = fs.createReadStream(req.files[self.name].path);
 
-//                var is = fs.createReadStream(req.files[self.name].path);
+                    var filename = self.create_filename(req.files[self.name]);
+                    var os = fs.createWriteStream(self.directory + filename);
 
-//                var os = fs.createWriteStream(self.directory + filename);
+                    util.pump(is, os, function(err) {
+                        fs.unlink(req.files[self.name].path,function(err)
+                        {
+                            self.value = {path:filename,url:'/cdn/' + filename,size:req.files[self.name].size};
+                            on_finish();
+                        });
+                    });
+                }
 
-//                util.pump(is, os, function(err) {
-//                    fs.unlink(req.files[self.name].path,function(err)
-//                    {
-//                        self.value = {path:filename,size:req.files[self.name].size};
-//                        on_finish();
-//                    });
-//                });
             }
             else
             {
