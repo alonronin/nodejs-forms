@@ -608,12 +608,11 @@ var FileField = exports.FileField = BaseField.extend({
             }
             else
             {
-                self.value = null;
                 on_finish();
             }
         };
         // delete old file is needed/requested
-        if(self.value && self.value.path && (req.body[self.name + '_clear'] || req.files[self.name] && req.files[self.name].name))
+        if(self.value && self.value.path && (req.body[self.name + '_clear'] || (req.files[self.name] && req.files[self.name].name)))
         {
             fs.unlink(self.directory + self.value.path,after_delete);
             self.value = null;
