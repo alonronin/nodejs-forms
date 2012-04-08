@@ -175,7 +175,7 @@ var BooleanField = exports.BooleanField = BaseField.extend({
     },
     clean_value : function(req,callback)
     {
-        if(this.value && this.value != '')
+        if(req.body[this.name] && req.body[this.name] != '')
             this.value = true;
         else
             this.value = false;
@@ -322,6 +322,7 @@ var ListField = exports.ListField = BaseField.extend({
     clean_value : function(req,callback)
     {
         var self = this;
+        var base = self._super;
         var prefix = self.name + '_li';
         this.value = [];
         var clean_funcs = [];
@@ -386,7 +387,7 @@ var ListField = exports.ListField = BaseField.extend({
                 if('__self__' in self.value[i])
                     self.value[i] = self.value[i].__self__;
             }
-            callback(null);
+            base.call(self,req,callback);
         });
         return self;
     },
