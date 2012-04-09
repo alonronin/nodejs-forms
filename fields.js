@@ -175,7 +175,7 @@ var BooleanField = exports.BooleanField = BaseField.extend({
     },
     clean_value : function(req,callback)
     {
-        if(this.value && this.value != '')
+        if(req.body[this.name] && req.body[this.name] != '')
             this.value = true;
         else
             this.value = false;
@@ -322,6 +322,7 @@ var ListField = exports.ListField = BaseField.extend({
     clean_value : function(req,callback)
     {
         var self = this;
+        var base = self._super;
         var prefix = self.name + '_li';
         this.value = [];
         var clean_funcs = [];
@@ -386,7 +387,7 @@ var ListField = exports.ListField = BaseField.extend({
                 if('__self__' in self.value[i])
                     self.value[i] = self.value[i].__self__;
             }
-            callback(null);
+            base.call(self,req,callback);
         });
         return self;
     },
@@ -542,7 +543,7 @@ var FileField = exports.FileField = BaseField.extend({
     {
         options = options || {};
         options.widget = options.widget || widgets.FileWidget;
-        this.directory = options.upload_to || require('path').join(__dirname,'..','public','cdn');
+        this.directory = options.upload_to || require('path').join(__dirname,'..','..','public','cdn');
         this._super(options);
     },
     to_schema : function()
@@ -572,41 +573,46 @@ var FileField = exports.FileField = BaseField.extend({
             {
                 // copy file from temp location
 
-                if(knox)
+                if(knox&&client)
                 {
                     var stream = fs.createReadStream(req.files[self.name].path);
                     var filename = self.create_filename(req.files[self.name]);
 
                     client.putStream(stream, '/' + filename, function(err, res){
                         fs.unlink(req.files[self.name].path);
-                        self.value = {path:res.socket._httpMessage.url,size:req.files[self.name].size};
-						
+                        self.value = {
+                            path:res.socket._httpMessage.url,
+                            url:res.socket._httpMessage.url,
+                            size:req.files[self.name].size};
+						console.log(res);
+						console.log(res.socket._httpMessage.url);
                         on_finish();
                     });
                 }
                 else
-                    on_finish();
+                {
+                    var is = fs.createReadStream(req.files[self.name].path);
 
-//                var is = fs.createReadStream(req.files[self.name].path);
+                    var filename = self.create_filename(req.files[self.name]);
+                    var os = fs.createWriteStream(self.directory + filename);
 
-//                var os = fs.createWriteStream(self.directory + filename);
+                    util.pump(is, os, function(err) {
+                        fs.unlink(req.files[self.name].path,function(err)
+                        {
+                            self.value = {path:filename,url:'/cdn/' + filename,size:req.files[self.name].size};
+                            on_finish();
+                        });
+                    });
+                }
 
-//                util.pump(is, os, function(err) {
-//                    fs.unlink(req.files[self.name].path,function(err)
-//                    {
-//                        self.value = {path:filename,size:req.files[self.name].size};
-//                        on_finish();
-//                    });
-//                });
             }
             else
             {
-                self.value = null;
                 on_finish();
             }
         };
         // delete old file is needed/requested
-        if(self.value && self.value.path && (req.body[self.name + '_clear'] || req.files[self.name] && req.files[self.name].name))
+        if(self.value && self.value.path && (req.body[self.name + '_clear'] || (req.files[self.name] && req.files[self.name].name)))
         {
             fs.unlink(self.directory + self.value.path,after_delete);
             self.value = null;
