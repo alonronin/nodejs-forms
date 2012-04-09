@@ -81,6 +81,21 @@ var TextAreaWidget = exports.TextAreaWidget = Widget.extend({
 
 });
 
+var RichTextAreaWidget = exports.RichTextAreaWidget = TextAreaWidget.extend({
+    init: function(options)
+    {
+        this._super(options);
+        this.attrs.class.push('ckeditor');
+        this.static.js.push('/node-forms/ckeditor/ckeditor.js');
+    },
+    render:function(res)
+    {
+        res.write('<div style="width:930px; padding-top:31px;">');
+        this._super(res);
+        res.write('</div>');
+    }
+});
+
 var DateWidget = exports.DateWidget = InputWidget.extend({
 	init: function(options)
     {

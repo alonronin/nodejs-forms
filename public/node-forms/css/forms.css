@@ -22,18 +22,18 @@ input, select {
     {
         width: 230px !important;
     }
-label {
+label.field {
     clear: left;
     float: left;
     /*display: block !important;*/
 }
-    label span {
+    label.field span.field_label {
         float: left;
         width: 190px;
         height: 25px;
         overflow: hidden;
     }
-        label span.error {
+        label.field span.error {
             float: right;
             margin-left: 10px;
         }
@@ -49,11 +49,11 @@ li {
     background-color: #E3E3E3;
     clear: both;
 }
-    li label {
+    li label.field {
         clear: none;
         display: inline;
     }
-    li label span {
+    li label.field span.field_label {
         clear: none;
         width: 110px;
     }
@@ -66,7 +66,7 @@ li {
     {
         width:270px !important;
     }
-    li .nf_fieldset .nf_fieldset .nf_fieldset label {
+    li .nf_fieldset .nf_fieldset .nf_fieldset label.field {
         width: 100px;
     }
     li .nf_fieldset .nf_fieldset .nf_fieldset input,

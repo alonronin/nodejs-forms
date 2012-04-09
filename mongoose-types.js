@@ -50,5 +50,15 @@ exports.loadTypes = function(mongoose)
 
     mongoose.Types.Text = String;
     mongoose.SchemaTypes.Text = Text;
+
+    var Html = function Html(path,options) {
+        Html.super_.call(this,path,options);
+    };
+    util.inherits(Html,Text);
+
+    exports.Html = Html;
+
+    mongoose.Types.Html = String;
+    mongoose.SchemaTypes.Html = Html;
 };
 

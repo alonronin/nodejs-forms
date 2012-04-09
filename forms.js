@@ -507,6 +507,11 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
             return new fields.NumberField(options);
         if(mongoose_field.options.type == Date)
             return new fields.DateField(options);
+        if(mongoose_field.options.type.name == 'Html')
+        {
+            options.widget = widgets.RichTextAreaWidget;
+            return new fields.StringField(options);
+        }
         if(mongoose_field.options.type.name == 'Text')
         {
             options.widget = widgets.TextAreaWidget;
