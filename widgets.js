@@ -34,11 +34,16 @@ var Widget = exports.Widget = Class.extend({
         for(var attr in this.attrs)
         {
             var value = Array.isArray(this.attrs[attr]) ? this.attrs[attr].join(' ') : this.attrs[attr];
-            res.write(' ' + attr + '="' + value + '"');
+            res.write(' ' + attr + '="' + escape_html(value) + '"');
         }
         return this;
     }
 });
+
+function escape_html(str)
+{
+    return str.replace(/</g,'&lt').replace(/>/g,'&gt').replace(/"/,'&quot');
+}
 
 var InputWidget = exports.InputWidget = Widget.extend({
 	init: function(type,options)
@@ -74,7 +79,7 @@ var TextAreaWidget = exports.TextAreaWidget = Widget.extend({
         res.write('<textarea ');
         this.render_attributes(res);
         res.write(' >');
-        res.write(this.value != null ? this.value :  '');
+        res.write(escape_html(this.value != null ? this.value :  ''));
         res.write('</textarea>');
         return this;
     }
