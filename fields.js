@@ -101,9 +101,9 @@ var BaseField = exports.BaseField = Class.extend({
     },
     clean_value : function(req,callback)
     {
-        if(this.value == '')
+        if(this.value === '')
             this.value = null;
-        if((this.value == null || this.value == []) && this.required)
+        if((this.value === null || this.value === []) && this.required)
             this.errors.push('this field is required');
         for(var i=0; i<this.validators; i++)
         {
@@ -217,7 +217,7 @@ var EnumField = exports.EnumField = BaseField.extend({
     //    if(!found)
     //        this.errors = ['possible values are: ' + this.choices];
     //        this.value = null || this['default'];
-        if(this.value == '')
+        if(this.value === '')
             this.value = null;
         this._super(req,callback);
         return this;
@@ -269,7 +269,7 @@ var NumberField = exports.NumberField = StringField.extend({
     },
     clean_value : function(req,callback)
     {
-        if(this.value === null && this.value == '' && !this.required)
+        if(this.value === null && this.value === '' && !this.required)
             this.value = null;
         else
         {
