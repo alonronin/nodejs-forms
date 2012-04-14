@@ -241,11 +241,11 @@ var FileWidget = exports.FileWidget = InputWidget.extend({
     },
     render : function(res)
     {
+        this._super(res);
         if(this.value && this.value.path)
         {
-            res.write('<input type="checkbox" name="' + this.name +'_clear" value="Clear" /> <a href="' + this.value.path + '">' + this.value.path + '</a>');
+            res.write('<label>Clear<input type="checkbox" name="' + this.name +'_clear" value="Clear" /> <a href="' + this.value.url + '">' + this.value.path + '</a></label>');
         }
-        this._super(res);
     }
 });
 
