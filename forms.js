@@ -349,8 +349,6 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         ref_fieldsets.push({title:'',fields:[]});
         for(var field in field_paths)
         {
-            if(field == 'id' || field == '_id')
-                continue;
             var parts = field.split('.');
             var form_field = this.mongoose_field_to_form_field(field_paths[field],parts[parts.length-1],field_tree);
             if(form_field)
