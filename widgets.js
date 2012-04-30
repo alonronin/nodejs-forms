@@ -196,7 +196,7 @@ var RefWidget = exports.RefWidget = ChoicesWidget.extend({
     {
         var self = this;
         var base = self._super;
-        this.ref.find({},function(err,objects)
+        this.ref.find({}).limit(50).run(function(err,objects)
         {
             if(err)
                 callback(err);

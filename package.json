@@ -1,7 +1,7 @@
 {
   "name": "j-forms",
   "description": "jewish forms creation from fields or from mongoose models",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "author": "Ishai Jaffe <ishai@empeeric.com>",
   "dependencies": {
     "sji":"",
