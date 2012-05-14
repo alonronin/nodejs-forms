@@ -73,6 +73,13 @@ var TextWidget = exports.TextWidget = InputWidget.extend({
     }
 });
 
+var PasswordWidget = exports.PasswordWidget = InputWidget.extend({
+    init: function(options)
+    {
+        this._super('password',options);
+    }
+});
+
 var TextAreaWidget = exports.TextAreaWidget = Widget.extend({
     render : function(res)
     {
