@@ -327,7 +327,8 @@ var ListField = exports.ListField = BaseField.extend({
         this.value = [];
         var clean_funcs = [];
         var inner_body = {};
-        function create_clean_func(field_name,post_data,output_data)//num,name,value)
+        var inner_files = {};
+        function create_clean_func(field_name,post_data,file_data,output_data)//num,name,value)
         {
             return function(cbk)
             {
@@ -338,6 +339,7 @@ var ListField = exports.ListField = BaseField.extend({
                 for(var key in req)
                     request_copy[key] = req[key];
                 request_copy.body = post_data;
+                request_copy.files = file_data;
                 field.set(post_data[field_name],request_copy);
                 field.clean_value(request_copy,function(err)
                 {
@@ -367,13 +369,27 @@ var ListField = exports.ListField = BaseField.extend({
                 //clean_funcs.push(create_clean_func(num,name,req.body[field_name]));
             }
         }
+        for(var field_name in req.files)
+        {
+            if(field_name.indexOf(prefix, 0) > -1 )
+            {
+                var suffix = field_name.split(prefix)[1];
+                var next_ = suffix.indexOf('_');
+                var num = suffix.substring(0,next_);
+                var name = suffix.substring(next_+1);
+                var data = inner_files[num] || {};
+                inner_files[num] = data;
+                data[name] = req.files[field_name];
+                //clean_funcs.push(create_clean_func(num,name,req.body[field_name]));
+            }
+        }
         for(var key in inner_body)
         {
             var output_data = {};
             this.value.push(output_data);
             for(var field_name in self.fields)
             {
-                clean_funcs.push(create_clean_func(field_name,inner_body[key],output_data));
+                clean_funcs.push(create_clean_func(field_name,inner_body[key],inner_files[key],output_data));
             }
         }
         async.parallel(clean_funcs,function(err)
