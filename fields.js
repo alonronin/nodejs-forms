@@ -556,7 +556,12 @@ var FileField = exports.FileField = BaseField.extend({
     },
     create_filename : function(file)
     {
-        return '/' + (Date.now()%1000) + file.name;
+		var parts = file.name.split('.');
+		var filename = parts.length > 1 ? parts.slice(0,parts.length-1).join('.') : parts[0];
+		filename = filename.replace(/\s\-/g,'_');		
+		var ext = parts.length > 1 ? '.' + parts[parts.length-1] : '';
+		ext = ext.replace(/\s\-/g,'_');		
+        return '/' + filename + '_' + (Date.now()%1000) + ext;
     },
     clean_value : function(req,callback)
     {
