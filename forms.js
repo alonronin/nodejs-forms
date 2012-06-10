@@ -64,6 +64,44 @@ exports.checkDependecies = function(model,id,callback)
     });
 };
 
+exports.unlinkDependencies = function(model,id,callback) {
+    exports.checkDependecies(model,id,function(err,deps){
+        if(err)
+            callback(err);
+        else
+        {
+            async.forEach(deps,function(dep,cbk) {
+                var schema = dep.schema;
+                var shouldSave = false, shouldRemove = false;
+                for(var fieldName in schema.paths)
+                {
+                    if(schema.paths[fieldName].options.ref && schema.paths[fieldName].options.ref == model && dep[fieldName] + '' == id)
+                    {
+                        switch(schema.paths[fieldName].options.onDelete){
+                            case 'delete':
+                                shouldRemove = true;
+                                break;
+                            case 'setNull':
+                                dep[fieldName] = null;
+                                shouldSave = true;
+                                break;
+                        }
+                    }
+                }
+                if(shouldRemove)
+                    dep.remove(cbk);
+                else
+                {
+                    if(shouldSave)
+                        dep.save(cbk);
+                    else
+                        cbk();
+                }
+            },callback);
+        }
+    });
+};
+
 var BaseForm = exports.BaseForm = Class.extend({
     init: function(request,options) {
         this.fields = {};
