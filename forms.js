@@ -128,15 +128,20 @@ var BaseForm = exports.BaseForm = Class.extend({
         this.handle_empty = options.empty;
         this.handle_success = options.success;
         this.handle_error = options.error;
+    },
+    handle: function(options) {
+        this.handle_empty = options.empty || this.handle_empty;
+        this.handle_success =   options.success || this.handle_success;
+        this.handle_error = options.error || this.handle_error;
         var self = this;
-        if(request.method.toUpperCase() == 'GET' && this.handle_empty)
+        if(self.request.method.toUpperCase() == 'GET' && this.handle_empty)
         {
             self.render_ready(function(err)
             {
                 self.handle_empty(err);
             });
         }
-        if(request.method.toUpperCase() == 'POST' && this.handle_success && this.handle_error)
+        if(self.request.method.toUpperCase() == 'POST' && this.handle_success && this.handle_error)
         {
             function on_error(error)
             {
@@ -174,7 +179,7 @@ var BaseForm = exports.BaseForm = Class.extend({
                 self.static.css = _.union(self.static.css,static.css);
         });
     },
-    render_head : function(res)
+    render_head : function()
     {
         var self = this;
         self.get_static();
@@ -343,7 +348,7 @@ var BaseForm = exports.BaseForm = Class.extend({
         }
         else
             render_fields(Object.keys(self.fields));
-        if(_.indexOf(self.exclude,'id') == -1)
+        if(_.indexOf(self.exclude,'id') == -1 && self.instance)
             res.write('<input type="hidden" id="document_id" name="_id" value="' + (self.instance.isNew ? '' : self.instance.id) + '" />');
     },
     to_html : function()
@@ -575,7 +580,11 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
            {
                if(err.errors)
                     self.errors = err.errors;
-               callback({message:'failed'});
+               else {
+                   console.error(err);
+                   console.trace();
+               } 
+			   callback({message:'failed'});
            }
            else
            {

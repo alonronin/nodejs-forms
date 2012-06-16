@@ -105,7 +105,7 @@ var BaseField = exports.BaseField = Class.extend({
             this.value = null;
         if((this.value === null || this.value === []) && this.required)
             this.errors.push('this field is required');
-        for(var i=0; i<this.validators; i++)
+        for(var i=0; i<this.validators.length; i++)
         {
             var result = this.validators[i](this.value);
             if(result != true )
