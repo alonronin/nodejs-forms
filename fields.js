@@ -344,7 +344,7 @@ var ListField = exports.ListField = BaseField.extend({
                 field.clean_value(request_copy,function(err)
                 {
                     if(field.errors && field.errors.length)
-                        this.errors = Array.concat(self.errors,field.errors);
+                        this.errors = _.union(self.errors,field.errors);
                     else
                     {
                         output_data[field_name] = field.value;
