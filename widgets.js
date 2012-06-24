@@ -1,5 +1,6 @@
 
-var Class = require('sji');
+var Class = require('sji')
+    ,_ = require('underscore');
 
 var Widget = exports.Widget = Class.extend({
     init:function(options)
@@ -157,6 +158,12 @@ var ChoicesWidget = exports.ChoicesWidget = Widget.extend({
         this.choices = options.choices || [];
         this._super(options);
     },
+    isSelected:function(choice) {
+        if(Array.isArray(this.value))
+            return _.include(this.value,choice);
+        else
+            return choice == this.value;
+    },
     render : function(res)
     {
         if(!this.names)
@@ -183,7 +190,7 @@ var ChoicesWidget = exports.ChoicesWidget = Widget.extend({
         }
         for(var i=0; i<this.choices.length; i++)
         {
-            var selected = this.value == this.choices[i] ? 'selected="selected" ' : '';
+            var selected = this.isSelected(this.choices[i]) ? 'selected="selected" ' : '';
             res.write('<option ' + selected + 'value="' + this.choices[i] + '">' + this.names[i] + '</option>');
         }
         res.write('</select>');

@@ -203,22 +203,27 @@ var EnumField = exports.EnumField = BaseField.extend({
     },
     clean_value : function(req,callback)
     {
-    //    var found = false;
-    //    for(var i=0; i<this.choices.length; i++)
-    //    {
-    //        if(this.choices[i] == this.value)
-    //            found = true;
-    //    }
-    //    if(this.value === null || this.value == '')
-    //    {
-    //        this.value = null;
-    //        found = true;
-    //    }
-    //    if(!found)
-    //        this.errors = ['possible values are: ' + this.choices];
-    //        this.value = null || this['default'];
         if(this.value === '')
             this.value = null;
+        this._super(req,callback);
+        return this;
+    }
+});
+
+var EnumMultiField = exports.EnumMultiField = EnumField.extend({
+    init: function(options,choices)
+    {
+        options = options || {};
+        options.attrs = options.attrs || {};
+        options.attrs.multiple = typeof(options.attrs.multiple) != 'undefined' ? options.attrs.multiple : 'multiple';
+        this._super(options,choices);
+    },
+    clean_value : function(req,callback)
+    {
+        if(!this.value)
+            this.value = [];
+        if(!Array.isArray(this.value))
+            this.value = [this.value];
         this._super(req,callback);
         return this;
     }
