@@ -595,7 +595,7 @@ var FileField = exports.FileField = BaseField.extend({
         }
         function after_delete(err)
         {
-            if(req.files[self.name] && req.files[self.name].name)
+            if(req.files && req.files[self.name] && req.files[self.name].name)
             {
                 // copy file from temp location
 
