@@ -280,8 +280,8 @@ var MapWidget = exports.MapWidget = InputWidget.extend({
             res.write('<input type="text" name="' + this.name +'_address" id="id_' + this.name + '_address" value="' + address + '" />');
         }
         var old_value = this.value;
-        var lat = this.value ? this.value.lat : '';
-        var lng = this.value ? this.value.lng : '';
+        var lat = this.value && this.value.geometry ? this.value.geometry.lat : '';
+        var lng = this.value && this.value.geometry ? this.value.geometry.lng : '';
         this.value = lat + ',' + lng;
         this._super(res);
         this.value = old_value;

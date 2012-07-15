@@ -666,7 +666,7 @@ var GeoField = exports.GeoField = BaseField.extend({
             this.value = null;
         else
         {
-            this.value = { lat: Number(parts[0]), lng:Number(parts[1])};
+            this.value = { geometry:{ lat: Number(parts[0]), lng:Number(parts[1])}};
             if(this.name + '_address' in req.body)
             {
                 this.value.address = req.body[this.name + '_address'];
