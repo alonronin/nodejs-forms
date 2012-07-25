@@ -558,6 +558,10 @@ exports.setAmazonCredentials = function(credentials)
         client = knox.createClient(credentials);
 };
 
+exports.getKnoxClient = function() {
+    return client;
+};
+
 
 var FileField = exports.FileField = BaseField.extend({
     init: function(options)
