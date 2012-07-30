@@ -433,7 +433,7 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         var is_required = mongoose_field.options.required ? true : false;
         var def = mongoose_field.options['default'];
         var validators = [];
-        var options = {required:is_required,'default':def,validators:validators,label: mongoose_field.options.label || name};
+        var options = {required:is_required,'default':def,validators:validators,label:name, limit: mongoose_field.options.limit};
         if(mongoose_field.options.validate)
         {
             validators.push(function(value)

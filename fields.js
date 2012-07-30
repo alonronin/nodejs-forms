@@ -242,6 +242,7 @@ var RefField = exports.RefField = EnumField.extend({
         options.widget_options = options.widget_options || {};
         options.widget_options.ref = options.widget_options.ref || ref;
         options.widget_options.required = options.required;
+        options.widget_options.limit = options.limit;
         this._super(options,[]);
         this.required = required;
     },

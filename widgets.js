@@ -6,6 +6,7 @@ var Widget = exports.Widget = Class.extend({
     init:function(options)
     {
         this.options = options;
+        this.limit = this.options.limit || 50;
         this.required = options.required || false;
         this.attrs = options.attrs || {};
         this.validators = options.validators || [];
@@ -210,7 +211,7 @@ var RefWidget = exports.RefWidget = ChoicesWidget.extend({
     {
         var self = this;
         var base = self._super;
-        this.ref.find({}).limit(50).run(function(err,objects)
+        this.ref.find({}).limit(self.limit).run(function(err,objects)
         {
             if(err)
                 callback(err);
