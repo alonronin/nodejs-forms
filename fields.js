@@ -679,3 +679,28 @@ var GeoField = exports.GeoField = BaseField.extend({
         this._super(req,callback);
     }
 });
+
+
+var DictField = exports.DictField = BaseField.extend({
+    init:function(options)
+    {
+        options = options || {};
+        options.widget = options.widget || widgets.TextAreaWidget;
+        this._super(options);
+    },
+    clean_value : function(req,callback)
+    {
+        var str = this.value;
+        try{
+            this.value = JSON.parse(str);
+        }
+        catch(ex) {
+            console.error('not a json',ex);
+        }
+        this._super(req,callback);
+    },
+    render:function(res) {
+        this.value = JSON.stringify(this.value);
+        this._super(res);
+    }
+});

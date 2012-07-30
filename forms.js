@@ -433,7 +433,7 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
         var is_required = mongoose_field.options.required ? true : false;
         var def = mongoose_field.options['default'];
         var validators = [];
-        var options = {required:is_required,'default':def,validators:validators,label:name};
+        var options = {required:is_required,'default':def,validators:validators,label: mongoose_field.options.label || name};
         if(mongoose_field.options.validate)
         {
             validators.push(function(value)
@@ -518,13 +518,14 @@ var MongooseForm = exports.MongooseForm = BaseForm.extend({
             return new fields.ListField(options,list_fields,list_fieldsets);
         }
         if(mongoose_field.options.type.name == 'File')
-        {
             return new fields.FileField(options);
-        }
+
         if(mongoose_field.options.type.name == 'GeoPoint')
-        {
             return new fields.GeoField(options);
-        }
+
+        if(mongoose_field.options.type.name =='Mixed')
+            return new fields.DictField(options);
+
         if(mongoose_field.options.ref)
         {
             var model = Models[mongoose_field.options.ref];
