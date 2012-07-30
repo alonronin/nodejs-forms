@@ -54,7 +54,7 @@ var InputWidget = exports.InputWidget = Widget.extend({
     },
     render : function(res)
     {
-        res.write('<input value="' + (this.value != null ? this.value :  '') + '"');
+        res.write('<input value="' + escape_html(this.value != null ? this.value :  '') + '"');
         this.render_attributes(res);
         res.write(' />');
         return this;
