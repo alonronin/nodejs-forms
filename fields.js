@@ -48,7 +48,8 @@ var BaseField = exports.BaseField = Class.extend({
         var arr =  label.split('_');
         for(var i=0; i<arr.length; i++)
         {
-            arr[i] = arr[i][0].toUpperCase() + arr[i].substring(1);
+			if(arr[i])
+				arr[i] = arr[i][0].toUpperCase() + arr[i].substring(1);
         }
         return arr.join(' ');
     },
